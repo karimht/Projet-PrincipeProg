@@ -23,7 +23,9 @@ class User(db.Model):
         cascade='all, delete-orphan'
     )
 
-    # Méthode pour convertir l'objet en dictionnaire (pour jsonify)
+    backlog = db.relationship('BacklogEntry', backref='user', cascade='all, delete-orphan')
+
+# Méthode pour convertir l'objet en dictionnaire (pour jsonify)
     def to_dict(self):
         return {
             'id': self.id,
@@ -83,6 +85,9 @@ class Game(db.Model):
     # secondary=game_tags => SQLAlchemy passe par cette table pour faire le lien
     # backref='games' => permet aussi de faire tag.games pour avoir les jeux d'un tag
     tags = db.relationship('Tag', secondary=game_tags, backref='games')
+    # Relation ONE-TO-MANY avec BacklogEntry
+    # Un jeu peut apparaître dans plusieurs backlogs (de différents users)
+    backlog_entries = db.relationship('BacklogEntry', backref='game', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {
