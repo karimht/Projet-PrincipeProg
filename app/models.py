@@ -56,3 +56,55 @@ class Profile(db.Model):
             'favorite_platform': self.favorite_platform,
             'bio': self.bio
         }
+
+    # ============================================================
+# Table d'association pour la relation MANY-TO-MANY entre Game et Tag
+# Cette table contient juste les paires (game_id, tag_id)
+# ============================================================
+game_tags = db.Table(
+    'game_tags',
+    db.Column('game_id', db.Integer, db.ForeignKey('games.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+)
+
+
+# ============================================================
+# Modèle Game
+# ============================================================
+class Game(db.Model):
+    __tablename__ = 'games'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    developer = db.Column(db.String(100))
+    release_year = db.Column(db.Integer)
+
+    # Relation MANY-TO-MANY avec Tag via la table d'association game_tags
+    # secondary=game_tags => SQLAlchemy passe par cette table pour faire le lien
+    # backref='games' => permet aussi de faire tag.games pour avoir les jeux d'un tag
+    tags = db.relationship('Tag', secondary=game_tags, backref='games')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'developer': self.developer,
+            'release_year': self.release_year,
+            'tags': [tag.name for tag in self.tags]
+        }
+
+
+# ============================================================
+# Modèle Tag
+# ============================================================
+class Tag(db.Model):
+    __tablename__ = 'tags'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }

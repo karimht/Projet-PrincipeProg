@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from database import db
-from models import User, Profile
+from models import User, Profile, Game, Tag
 import os
 
 app = Flask(__name__)
