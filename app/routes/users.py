@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from models import User
+from models import User, Profile
 
 # Création du Blueprint pour les routes utilisateurs
 users_bp = Blueprint('users', __name__)
@@ -67,3 +67,33 @@ def delete_user(id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"message": "Utilisateur supprimé"}), 200
+
+# ============================================================
+# Routes pour le profil (relation ONE-TO-ONE avec User)
+# ============================================================
+
+# Créer ou mettre à jour le profil d'un utilisateur
+@users_bp.route('/users/<int:id>/profile', methods=['PUT'])
+def update_profile(id):
+    user = User.query.get(id)
+    if not user:
+        return jsonify({"erreur": "L'utilisateur n'existe pas !"}), 404
+
+    data = request.get_json()
+
+    # Si l'utilisateur n'a pas encore de profil, on en crée un
+    if not user.profile:
+        profile = Profile(user_id=user.id)
+        db.session.add(profile)
+        user.profile = profile
+
+    # Mise à jour des champs (seulement ceux présents dans la requête)
+    if 'avatar_url' in data:
+        user.profile.avatar_url = data['avatar_url']
+    if 'favorite_platform' in data:
+        user.profile.favorite_platform = data['favorite_platform']
+    if 'bio' in data:
+        user.profile.bio = data['bio']
+
+    db.session.commit()
+    return jsonify(user.profile.to_dict())
