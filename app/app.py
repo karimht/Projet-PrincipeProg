@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from database import db
 from models import User, Profile, Game, Tag, BacklogEntry
 from routes.users import users_bp   # ← nouvel import
+from routes.users import users_bp
+from routes.games import games_bp   # ← nouvelle ligne
 import os
 
 app = Flask(__name__)
@@ -16,7 +18,8 @@ db.init_app(app)
 
 # Enregistrement du blueprint des utilisateurs
 app.register_blueprint(users_bp)   # ← nouvelle ligne
-
+app.register_blueprint(users_bp)
+app.register_blueprint(games_bp)   # ← nouvelle ligne
 
 @app.route('/')
 def home():
