@@ -1,9 +1,10 @@
 from flask import Flask, jsonify
 from database import db
 from models import User, Profile, Game, Tag, BacklogEntry
-from routes.users import users_bp   # ← nouvel import
 from routes.users import users_bp
-from routes.games import games_bp   # ← nouvelle ligne
+from routes.users import users_bp
+from routes.games import games_bp
+from routes.tags import tags_bp
 import os
 
 app = Flask(__name__)
@@ -17,9 +18,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # Enregistrement du blueprint des utilisateurs
-app.register_blueprint(users_bp)   # ← nouvelle ligne
 app.register_blueprint(users_bp)
-app.register_blueprint(games_bp)   # ← nouvelle ligne
+app.register_blueprint(users_bp)
+app.register_blueprint(games_bp)
+app.register_blueprint(tags_bp)
 
 @app.route('/')
 def home():

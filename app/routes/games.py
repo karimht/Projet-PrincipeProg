@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from models import Game
+from models import Game, Tag
 
 # Création du Blueprint pour les routes des jeux
 games_bp = Blueprint('games', __name__)
@@ -68,3 +68,45 @@ def delete_game(id):
     db.session.delete(game)
     db.session.commit()
     return jsonify({"message": "Jeu supprimé"}), 200
+
+# ============================================================
+# Gestion des tags associés à un jeu (relation MANY-TO-MANY)
+# ============================================================
+
+# Associer un tag à un jeu
+@games_bp.route('/games/<int:game_id>/tags/<int:tag_id>', methods=['POST'])
+def add_tag_to_game(game_id, tag_id):
+    game = Game.query.get(game_id)
+    tag = Tag.query.get(tag_id)
+
+    if not game:
+        return jsonify({"erreur": "Le jeu n'existe pas !"}), 404
+    if not tag:
+        return jsonify({"erreur": "Le tag n'existe pas !"}), 404
+
+    # Vérifier que l'association n'existe pas déjà
+    if tag in game.tags:
+        return jsonify({"erreur": "Ce tag est déjà associé à ce jeu"}), 400
+
+    # Magie de l'ORM : un simple .append() crée la ligne dans la table game_tags
+    game.tags.append(tag)
+    db.session.commit()
+    return jsonify(game.to_dict()), 201
+
+
+# Retirer un tag d'un jeu
+@games_bp.route('/games/<int:game_id>/tags/<int:tag_id>', methods=['DELETE'])
+def remove_tag_from_game(game_id, tag_id):
+    game = Game.query.get(game_id)
+    tag = Tag.query.get(tag_id)
+
+    if not game or not tag:
+        return jsonify({"erreur": "Jeu ou tag introuvable"}), 404
+
+    if tag not in game.tags:
+        return jsonify({"erreur": "Ce tag n'est pas associé à ce jeu"}), 400
+
+    # Magie de l'ORM : .remove() supprime la ligne dans la table game_tags
+    game.tags.remove(tag)
+    db.session.commit()
+    return jsonify({"message": "Tag retiré du jeu"}), 200
