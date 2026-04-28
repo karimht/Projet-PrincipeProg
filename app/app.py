@@ -5,6 +5,7 @@ from routes.users import users_bp
 from routes.users import users_bp
 from routes.games import games_bp
 from routes.tags import tags_bp
+from routes.backlog import backlog_bp
 import os
 
 app = Flask(__name__)
@@ -22,11 +23,13 @@ app.register_blueprint(users_bp)
 app.register_blueprint(users_bp)
 app.register_blueprint(games_bp)
 app.register_blueprint(tags_bp)
+app.register_blueprint(backlog_bp)
 
 @app.route('/')
 def home():
     return jsonify({
-        "message": "Bienvenue dans l'API Backlog de jeux vidéo !"
+        "message": "Bienvenue dans l'API Backlog de jeux vidéo !",
+        "routes": ["/users", "/games", "/tags", "/backlog"]
     })
 
 
