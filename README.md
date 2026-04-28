@@ -1,6 +1,6 @@
 # Backlog de Jeux Vidéo - API REST
 
-Projet réalisé dans le cadre de la SAE **Développement & Déploiement d'une Application Web RESTful Conteneurisée** (Sup-Galilée).
+Projet réalisé dans le cadre de la SAE **Développement & Déploiement d'une Application Web RESTful Conteneurisée**.
 
 # Contexte
 

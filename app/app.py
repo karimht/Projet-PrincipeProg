@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from database import db
+from models import User, Profile
 import os
 
 app = Flask(__name__)
