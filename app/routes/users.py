@@ -34,10 +34,13 @@ def add_user():
         email=data['email'],
         username=data['username']
     )
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify(new_user.to_dict()), 201  # 201 = création réussie
-
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify(new_user.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()  # Annule la transaction si erreur
+        return jsonify({"erreur": "Email ou username déjà utilisé"}), 400
 
 # Mettre à jour un utilisateur
 @users_bp.route('/users/<int:id>', methods=['PUT'])
@@ -52,8 +55,12 @@ def update_user(id):
     if 'username' in data:
         user.username = data['username']
 
-    db.session.commit()
-    return jsonify(user.to_dict())
+    try:
+        db.session.commit()
+        return jsonify(user.to_dict())
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"erreur": "Email ou username déjà utilisé"}), 400
 
 
 # Supprimer un utilisateur
@@ -87,7 +94,7 @@ def update_profile(id):
         db.session.add(profile)
         user.profile = profile
 
-    # Mise à jour des champs (seulement ceux présents dans la requête)
+    # Mise à jour des champs
     if 'avatar_url' in data:
         user.profile.avatar_url = data['avatar_url']
     if 'favorite_platform' in data:
@@ -95,5 +102,9 @@ def update_profile(id):
     if 'bio' in data:
         user.profile.bio = data['bio']
 
-    db.session.commit()
-    return jsonify(user.profile.to_dict())
+    try:
+        db.session.commit()
+        return jsonify(user.profile.to_dict())
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"erreur": "Erreur lors de la mise à jour du profil"}), 400

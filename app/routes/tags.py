@@ -35,9 +35,13 @@ def add_tag():
         return jsonify({"erreur": "Ce tag existe déjà"}), 400
 
     new_tag = Tag(name=data['name'])
-    db.session.add(new_tag)
-    db.session.commit()
-    return jsonify(new_tag.to_dict()), 201
+    try:
+        db.session.add(new_tag)
+        db.session.commit()
+        return jsonify(new_tag.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"erreur": "Erreur lors de la création du tag"}), 400
 
 
 # Supprimer un tag

@@ -32,6 +32,23 @@ def home():
         "routes": ["/users", "/games", "/tags", "/backlog"]
     })
 
+# Gestion globale des erreurs
+# Si une route n'existe pas (URL inconnue) → renvoie un JSON propre au lieu du HTML par défaut
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"erreur": "Route introuvable"}), 404
+
+
+# Si une erreur serveur inattendue se produit → renvoie un JSON propre
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"erreur": "Erreur interne du serveur"}), 500
+
+
+# Si le JSON envoyé est mal formé
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({"erreur": "Requête invalide"}), 400
 
 with app.app_context():
     db.create_all()
