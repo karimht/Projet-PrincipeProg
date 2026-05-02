@@ -377,13 +377,13 @@ Le fichier `init.sql` contient un jeu de données de test :
 
 L'image Docker de l'API est publiée sur Docker Hub :
 
-- **Image** : `karimht/backlog-jeux-api:latest`
-- **Lien** : https://hub.docker.com/r/karimht/backlog-jeux-api
+- **Image** : `karimmahtout/backlog-jeux-api:latest`
+- **Lien** : https://hub.docker.com/r/karimmahtout/backlog-jeux-api
 
 ### Lancer depuis Docker Hub
 
 ```bash
-docker pull karimht/backlog-jeux-api:latest
+docker pull karimmahtout/backlog-jeux-api:latest
 ```
 
 Pour lancer l'image avec une BDD PostgreSQL, on utilise le `docker-compose.yml` du dépôt qui orchestre les deux conteneurs.
