@@ -9,20 +9,23 @@ import pytest
 # Ajouter le dossier 'app' au path pour pouvoir importer les modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'app'))
 
-from app import app
+# IMPORTANT : on définit la variable d'environnement AVANT d'importer create_app
+# pour que SQLAlchemy utilise SQLite en mémoire (pas PostgreSQL)
+os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+
+from app import create_app
 from database import db
 
 
 @pytest.fixture
 def client():
-    # On utilise une base SQLite en mémoire pour les tests
-    # (pas besoin de PostgreSQL pour tester)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app = create_app()
     app.config['TESTING'] = True
 
     with app.test_client() as client:
         with app.app_context():
-            db.create_all()  # Crée les tables
-            yield client     # Donne le client de test au test
+            db.drop_all()
+            db.create_all()
+            yield client
             db.session.remove()
-            db.drop_all()    # Nettoie après le test
+            db.drop_all()
