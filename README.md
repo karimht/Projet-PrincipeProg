@@ -1,6 +1,6 @@
 # Backlog de Jeux Vidéo - API REST
 
-Projet réalisé dans le cadre de la SAE **Développement & Déploiement d'une Application Web RESTful Conteneurisée** (Sup-Galilée).
+Projet réalisé dans le cadre de la SAE **Développement & Déploiement d'une Application Web RESTful Conteneurisée**.
 
 ---
 
@@ -412,4 +412,5 @@ Un volume nommé `postgres_data` est utilisé pour persister les données de Pos
 ## Auteur
 
 Projet SAE — Sup-Galilée
-Karim — [@karimht](https://github.com/karimht)
+MAHTOUT Karim — [@karimht](https://github.com/karimht)
+GHRIS Abderahim — [@baalln](https://github.com/baalln)
