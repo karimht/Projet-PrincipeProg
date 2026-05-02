@@ -9,6 +9,15 @@ users_bp = Blueprint('users', __name__)
 # Afficher tous les utilisateurs
 @users_bp.route('/users', methods=['GET'])
 def get_users():
+    """
+    Récupérer tous les utilisateurs
+    ---
+    tags:
+      - Users
+    responses:
+      200:
+        description: Liste des utilisateurs
+    """
     users = User.query.all()
     return jsonify([u.to_dict() for u in users])
 
@@ -16,6 +25,22 @@ def get_users():
 # Afficher un utilisateur par son id
 @users_bp.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
+    """
+    Récupérer un utilisateur par son id (avec son profil)
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Utilisateur trouvé
+      404:
+        description: Utilisateur non trouvé
+    """
     user = User.query.get(id)
     if not user:
         return jsonify({"erreur": "L'utilisateur n'existe pas !"}), 404
@@ -25,8 +50,34 @@ def get_user(id):
 # Ajouter un utilisateur
 @users_bp.route('/users', methods=['POST'])
 def add_user():
+    """
+    Créer un nouvel utilisateur
+    ---
+    tags:
+      - Users
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - email
+            - username
+          properties:
+            email:
+              type: string
+              example: alice@test.com
+            username:
+              type: string
+              example: alice_gamer
+    responses:
+      201:
+        description: Utilisateur créé
+      400:
+        description: Données invalides
+    """
     data = request.get_json()
-    # Vérification des champs obligatoires
     if not data.get('email') or not data.get('username'):
         return jsonify({"erreur": "email et username obligatoires"}), 400
 
@@ -39,8 +90,9 @@ def add_user():
         db.session.commit()
         return jsonify(new_user.to_dict()), 201
     except Exception as e:
-        db.session.rollback()  # Annule la transaction si erreur
+        db.session.rollback()
         return jsonify({"erreur": "Email ou username déjà utilisé"}), 400
+
 
 # Mettre à jour un utilisateur
 @users_bp.route('/users/<int:id>', methods=['PUT'])

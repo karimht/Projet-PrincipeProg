@@ -9,6 +9,15 @@ games_bp = Blueprint('games', __name__)
 # Afficher tous les jeux
 @games_bp.route('/games', methods=['GET'])
 def get_games():
+    """
+    Récupérer tous les jeux
+    ---
+    tags:
+      - Games
+    responses:
+      200:
+        description: Liste des jeux
+    """
     games = Game.query.all()
     return jsonify([g.to_dict() for g in games])
 
@@ -16,6 +25,22 @@ def get_games():
 # Afficher un jeu par son id
 @games_bp.route('/games/<int:id>', methods=['GET'])
 def get_game(id):
+    """
+    Récupérer un jeu par son id (avec ses tags)
+    ---
+    tags:
+      - Games
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Jeu trouvé
+      404:
+        description: Jeu non trouvé
+    """
     game = Game.query.get(id)
     if not game:
         return jsonify({"erreur": "Le jeu n'existe pas !"}), 404
@@ -25,6 +50,35 @@ def get_game(id):
 # Ajouter un jeu
 @games_bp.route('/games', methods=['POST'])
 def add_game():
+    """
+    Créer un nouveau jeu
+    ---
+    tags:
+      - Games
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - title
+          properties:
+            title:
+              type: string
+              example: Hollow Knight
+            developer:
+              type: string
+              example: Team Cherry
+            release_year:
+              type: integer
+              example: 2017
+    responses:
+      201:
+        description: Jeu créé
+      400:
+        description: Données invalides
+    """
     data = request.get_json()
     if not data.get('title'):
         return jsonify({"erreur": "Le titre est obligatoire"}), 400
@@ -36,7 +90,7 @@ def add_game():
     )
     db.session.add(new_game)
     db.session.commit()
-    return jsonify(new_game.to_dict()), 201  # 201 = création réussie
+    return jsonify(new_game.to_dict()), 201
 
 
 # Mettre à jour un jeu

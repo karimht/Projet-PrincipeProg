@@ -7,14 +7,33 @@ backlog_bp = Blueprint('backlog', __name__)
 
 
 # Afficher le backlog d'un utilisateur
-# Filtre optionnel par statut : /users/1/backlog?status=playing
 @backlog_bp.route('/users/<int:user_id>/backlog', methods=['GET'])
 def get_user_backlog(user_id):
+    """
+    Récupérer le backlog d'un utilisateur (avec filtre optionnel par statut)
+    ---
+    tags:
+      - Backlog
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+      - name: status
+        in: query
+        type: string
+        required: false
+        enum: [to_play, playing, finished, dropped]
+    responses:
+      200:
+        description: Backlog de l'utilisateur
+      404:
+        description: Utilisateur non trouvé
+    """
     user = User.query.get(user_id)
     if not user:
         return jsonify({"erreur": "L'utilisateur n'existe pas !"}), 404
 
-    # Récupération du paramètre de filtre dans l'URL (?status=...)
     status_filter = request.args.get('status')
 
     query = BacklogEntry.query.filter_by(user_id=user_id)
@@ -28,6 +47,44 @@ def get_user_backlog(user_id):
 # Ajouter un jeu au backlog d'un utilisateur
 @backlog_bp.route('/users/<int:user_id>/backlog', methods=['POST'])
 def add_to_backlog(user_id):
+    """
+    Ajouter un jeu au backlog d'un utilisateur
+    ---
+    tags:
+      - Backlog
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - game_id
+          properties:
+            game_id:
+              type: integer
+              example: 1
+            status:
+              type: string
+              example: playing
+            rating:
+              type: integer
+              example: 9
+            review:
+              type: string
+              example: Excellent jeu
+    responses:
+      201:
+        description: Jeu ajouté au backlog
+      400:
+        description: Données invalides
+      404:
+        description: Utilisateur ou jeu non trouvé
+    """
     user = User.query.get(user_id)
     if not user:
         return jsonify({"erreur": "L'utilisateur n'existe pas !"}), 404
@@ -41,7 +98,6 @@ def add_to_backlog(user_id):
     if not game:
         return jsonify({"erreur": "Le jeu n'existe pas !"}), 404
 
-    # Vérifier que le jeu n'est pas déjà dans le backlog de cet utilisateur
     existing = BacklogEntry.query.filter_by(user_id=user_id, game_id=game_id).first()
     if existing:
         return jsonify({"erreur": "Ce jeu est déjà dans le backlog"}), 400

@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flasgger import Swagger
 from database import db
 from models import User, Profile, Game, Tag, BacklogEntry
 from routes.users import users_bp
@@ -17,6 +18,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+db.init_app(app)
+
+# Configuration de Swagger
+app.config['SWAGGER'] = {
+    'title': 'API Backlog de Jeux Vidéo',
+    'description': 'API REST pour gérer un backlog personnel de jeux vidéo',
+    'version': '1.0.0',
+    'uiversion': 3
+}
+swagger = Swagger(app)
 
 # Enregistrement du blueprint des utilisateurs
 app.register_blueprint(users_bp)
