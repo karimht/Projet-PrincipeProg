@@ -6,9 +6,9 @@ Projet réalisé dans le cadre de la SAE **Développement & Déploiement d'une A
 
 ## Contexte du projet
 
-Cette application est une **API REST** permettant à des utilisateurs de gérer leur **backlog personnel de jeux vidéo**.
+Cette application est une **API REST** permettant à des utilisateurs de gérer leur **backlog personnel de jeux vidéo**, accompagnée d'une **interface web** pour interagir avec l'API de manière visuelle.
 
-Le problème résolu : les joueurs ont souvent une quantité importante de jeux qu'ils possèdent mais n'ont pas encore joués, ou des jeux en cours qu'ils oublient de finir. Cette API leur permet de :
+Le problème résolu : les joueurs ont souvent une quantité importante de jeux qu'ils possèdent mais n'ont pas encore joués, ou des jeux en cours qu'ils oublient de finir. Cette application leur permet de :
 
 - Lister les jeux qu'ils veulent jouer (statut "à jouer")
 - Suivre les jeux en cours
@@ -17,7 +17,7 @@ Le problème résolu : les joueurs ont souvent une quantité importante de jeux 
 - Catégoriser les jeux avec des tags (RPG, Indie, Soulslike...)
 - Consulter des statistiques sur leur progression
 
-L'API est conçue pour être consommée par n'importe quel client (application web, mobile, script...).
+L'API est conçue pour être consommée par n'importe quel client (application web, mobile, script...), et un frontend web est fourni pour la démonstration.
 
 ---
 
@@ -26,6 +26,7 @@ L'API est conçue pour être consommée par n'importe quel client (application w
 | Composant | Technologie |
 |-----------|-------------|
 | Backend | Python 3.12 + Flask |
+| Frontend | HTML / CSS / JavaScript (vanilla) |
 | ORM | SQLAlchemy (via Flask-SQLAlchemy) |
 | Base de données | PostgreSQL 15 |
 | Documentation API | Swagger (Flasgger) |
@@ -55,6 +56,14 @@ Projet-PrincipeProg/
 │       ├── tags.py          # Routes /tags
 │       └── backlog.py       # Routes /backlog + statistiques
 │
+├── frontend/                # Interface web (HTML/CSS/JS)
+│   ├── index.html           # Page principale (4 onglets)
+│   ├── css/
+│   │   └── style.css        # Thème dark gaming
+│   └── js/
+│       ├── api.js           # Client API (fetch vers Flask)
+│       └── app.js           # Logique de l'interface
+│
 └── tests/                   # Tests automatisés (pytest)
     ├── __init__.py
     ├── conftest.py          # Configuration partagée (fixture client)
@@ -69,6 +78,7 @@ Projet-PrincipeProg/
 - **Blueprints Flask** : chaque "thème" de l'API a son fichier de routes, ce qui rend le code modulaire et facile à maintenir.
 - **ORM SQLAlchemy** : permet de manipuler la base de données via des objets Python plutôt que d'écrire du SQL à la main.
 - **PATCH vs PUT** : on utilise PATCH pour les mises à jour partielles (modifier juste le statut d'une entrée du backlog par exemple).
+- **Frontend servi par Flask** : Flask sert à la fois l'API et les fichiers statiques du frontend, sur le même port (5000). Cela évite les problèmes de CORS et simplifie le déploiement.
 
 ---
 
@@ -126,10 +136,7 @@ Cette commande :
 - Lance les deux conteneurs et les met en réseau
 - Crée automatiquement les tables au premier démarrage (via `db.create_all()`)
 
-L'API est ensuite accessible sur **http://localhost:5000**
-PostgreSQL est exposé sur le port **5432**.
-
-### Étape 3 : Charger les données de test (optionnel mais recommandé)
+### Étape 3 : Charger les données de test (recommandé)
 
 Une fois les conteneurs lancés, dans un nouveau terminal :
 
@@ -140,10 +147,17 @@ docker compose exec db psql -U user_backlog -d backlog_jeux -f /tmp/init.sql
 
 ### Étape 4 : Tester
 
-- **Page d'accueil de l'API** : http://localhost:5000
-- **Documentation Swagger interactive** : http://localhost:5000/apidocs
-- **Liste des jeux** : http://localhost:5000/games
-- **Liste des utilisateurs** : http://localhost:5000/users
+Une seule URL pour tout, le port **5000** sert l'API et le frontend :
+
+| URL | Description |
+|-----|-------------|
+| **http://localhost:5000** | **Interface web (frontend)** |
+| http://localhost:5000/apidocs | Documentation Swagger interactive |
+| http://localhost:5000/users | API : liste des utilisateurs (JSON) |
+| http://localhost:5000/games | API : liste des jeux (JSON) |
+| http://localhost:5000/tags | API : liste des tags (JSON) |
+
+PostgreSQL est exposé sur le port **5432** (utile pour se connecter avec un client SQL externe).
 
 ### Arrêter l'application
 
@@ -156,6 +170,25 @@ Pour aussi supprimer le volume de données (réinitialiser la BDD) :
 ```bash
 docker compose down -v
 ```
+
+---
+
+## Frontend (interface web)
+
+Une interface web est fournie pour interagir avec l'API de manière visuelle. Elle est servie directement par Flask sur **http://localhost:5000**.
+
+### Fonctionnalités
+
+- **Dashboard** : statistiques du backlog du user sélectionné + liste filtrable par statut + formulaire d'ajout de jeu au backlog
+- **Jeux** : catalogue complet avec leurs tags (montre la relation N-N) + création de nouveaux jeux
+- **Utilisateurs** : liste des comptes avec leur profil (montre la relation 1-1) + création d'utilisateurs
+- **Tags** : nuage de tags + création de nouveaux tags
+
+### Technologies
+
+- HTML / CSS / JavaScript pur (pas de framework, pas de build)
+- Fetch API pour les requêtes vers le backend
+- Police d'écriture : Press Start 2P, Outfit, JetBrains Mono (Google Fonts)
 
 ---
 
@@ -401,6 +434,7 @@ Un volume nommé `postgres_data` est utilisé pour persister les données de Pos
 - Les 3 relations (1-1, 1-N, N-N) modélisées dans le code et la BDD
 - Conteneurisation complète (API + BDD)
 - Orchestration via Docker Compose
+- Frontend web servi par Flask (HTML/CSS/JS pur)
 - Documentation interactive avec Swagger
 - Tests automatisés avec pytest
 - Gestion des erreurs (try/except, handlers globaux 404/500)
@@ -409,8 +443,8 @@ Un volume nommé `postgres_data` est utilisé pour persister les données de Pos
 
 ---
 
-## Auteur
+## Auteurs
 
 Projet SAE — Sup-Galilée
-MAHTOUT Karim — [@karimht](https://github.com/karimht)
-GHRIS Abderahim — [@baalln](https://github.com/baalln)
+- MAHTOUT Karim — [@karimht](https://github.com/karimht)
+- GHRIS Abderahim — [@baalln](https://github.com/baalln)
