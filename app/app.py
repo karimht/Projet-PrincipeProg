@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, CORS
 from flasgger import Swagger
 from database import db
 from models import User, Profile, Game, Tag, BacklogEntry
@@ -12,6 +12,8 @@ import os
 def create_app():
     """Factory pour créer l'application Flask."""
     app = Flask(__name__)
+
+    CORS(app)   # active CORS pour toutes les routes
 
     # Configuration de la base de données
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
